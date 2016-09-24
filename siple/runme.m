@@ -1,6 +1,7 @@
 %% general script settings
 plot_data_sets = true;
 plot_meshes = true;
+plot_grounding_line = true;
 
 %% add to path
 addpath('../bin/');    % my scripts
@@ -98,6 +99,7 @@ groundedice = double(InterpFromGridToMesh(...
 % fill in the md.mask structure
 % ice is grounded for mask equal one
 md.mask.groundedice_levelset = groundedice; 
+clear groundedice
 
 % interpolate onto our mesh vertices
 ice = double(InterpFromGridToMesh(...
@@ -108,15 +110,27 @@ ice(ice > 1.0e-5) = -1;   % make ice shelves count as ice
 % ice is present when negative
 %md.mask.ice_levelset = -1 * ones(md.mesh.numberofvertices, 1);% all is ice
 md.mask.ice_levelset = ice;
+clear ice
 
-plotmodel(md, ...
-    'data', md.mask.groundedice_levelset, 'title', 'grounded/floating', ...
-    'data', md.mask.ice_levelset, 'title', 'ice/no-ice');
+if plot_grounding_line
+    plotmodel(md, ...
+        'data', md.mask.groundedice_levelset, 'title', 'grounded/floating', ...
+        'data', md.mask.ice_levelset, 'title', 'ice/no-ice');
+end
 
 % Save model
 save siple_set_mask md;
 
 
+%% Parameterization
+md = loadmodel('siple_set_mask');
+md = parameterize(md, 'siple_params.m');
+
+% Use a MacAyeal flow model
+md = setflowequation(md, 'SSA', 'all');
+
+% Save model
+save siple_parameterization md;
 
 
 
