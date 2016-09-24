@@ -1,7 +1,6 @@
 %% general script settings
 plot_data_sets = false;
 plot_meshes = true;
-plot_geometry = true;
 plot_grounding_line = true;
 plot_friction_coefficient = true;
 
@@ -68,6 +67,7 @@ err = 8;         % maximum error between interpolated and control field
 % generate an initial uniform mesh (resolution = hinit meters)
 md = bamg(model, 'domain', domain, 'hmax', hinit);
 %plotmodel(md,'data','mesh')
+clear domain
 
 % TODO: check if the velocity data below is oriented correctly
 % interpolate velocities onto coarse mesh
@@ -89,21 +89,23 @@ vel_obs = sqrt(vx_obs.^2 + vy_obs.^2);
 md = bamg(md, 'hmax', hmax, 'hmin', hmin, ...
     'gradation', gradation, 'field', vel_obs, 'err', err);
 
-%clear vx_obs vy_obs vel_obs;
+clear vx_obs vy_obs vel_obs;
 
 if plot_meshes
     plotmodel(md, 'data', 'mesh')
-    saveas(gcf, 'figures/siple_mesh')
-    saveas(gcf, 'figures/siple_mesh.pdf')
+    saveas(gcf, 'figures/model_mesh')
+    saveas(gcf, 'figures/model_mesh.pdf')
 end
 
+clear hinit hmax hmin gradation err;
+
 % save model
-save models/siple_mesh_generation md;
+save models/model_mesh_generation md;
 
 
 %% Apply masks for grounded/floating ice
 
-md = loadmodel('models/siple_mesh_generation');
+md = loadmodel('models/model_mesh_generation');
 
 % interpolate onto our mesh vertices
 groundedice = double(InterpFromGridToMesh(...
@@ -132,28 +134,28 @@ if plot_grounding_line
         'title', 'grounded/floating', ...
         'data', md.mask.ice_levelset, ...
         'title', 'ice/no-ice');
-    saveas(gcf, 'figures/siple_grounding_line')
-    saveas(gcf, 'figures/siple_grounding_line.pdf')
+    saveas(gcf, 'figures/model_grounding_line')
+    saveas(gcf, 'figures/model_grounding_line.pdf')
 end
 
 % Save model
-save models/siple_set_mask md;
+save models/model_set_mask md;
 
 
 %% Parameterization
-md = loadmodel('models/siple_set_mask');
-md = parameterize(md, 'siple_params.m');
+md = loadmodel('models/model_set_mask');
+md = parameterize(md, 'model_params.m');
 
 % Use a MacAyeal flow model
 md = setflowequation(md, 'SSA', 'all');
 
 % Save model
-save models/siple_parameterization md;
+save models/model_parameterization md;
 
 
 %% Find stress balance (control method)
 
-md = loadmodel('models/siple_parameterization');
+md = loadmodel('models/model_parameterization');
 
 % Control general
 md.inversion.iscontrol = 1;
@@ -192,12 +194,13 @@ md.friction.coefficient = ...
 
 if plot_friction_coefficient
     plotmodel(md, 'data', md.friction.coefficient)
-    saveas(gcf, 'figures/siple_friction')
-    saveas(gcf, 'figures/siple_friction.pdf')
+    saveas(gcf, 'figures/model_friction')
+    saveas(gcf, 'figures/model_friction.pdf')
 end
 
 % Save model
-save models/siple_control_drag md;
+save models/model_control_drag md;
+
 
 %% Post visualization
 plotmodel(md, 'nlines', 2, 'ncols', 2, ...
@@ -214,10 +217,18 @@ plotmodel(md, 'nlines', 2, 'ncols', 2, ...
     'data', md.results.StressbalanceSolution.FrictionCoefficient, ...
     'title', 'Friction Coefficient', ...
     'colorbar#all', 'on', 'colorbartitle#1-2', '[m/yr]', ...
-    'caxis#1-2', ([1.5,4000]), ...
+    'caxis#1-2', ([1.5, 4000]), ...
     'colorbartitle#3', '[m]', 'log#1-2', 10);
-saveas(gcf, 'figures/siple_combined')
-saveas(gcf, 'figures/siple_combined.pdf')
 
+saveas(gcf, 'figures/model_combined')
+saveas(gcf, 'figures/model_combined.pdf')
+
+
+%% Cleanup time
+clear plot_data_sets ...
+    plot_meshes ...
+    plot_geometry ...
+    plot_grounding_line ...
+    plot_friction_coefficient
 
 
