@@ -9,6 +9,15 @@ addpath('../bin/');    % my scripts
 addpath('../../bin');  % issm/trunk/bin
 addpath('../../lib');  % issm/trunk/lib
 
+% create output folders
+if ~exist('models', 'file')
+    mkdir models
+end
+
+if ~exist('figures', 'file')
+    mkdir figures
+end
+
 %% Read input data
 
 % read Bedmap2 data if not loaded
@@ -85,12 +94,12 @@ if plot_meshes
 end
 
 % save model
-save siple_mesh_generation md;
+save models/siple_mesh_generation md;
 
 
 %% Apply masks for grounded/floating ice
 
-md = loadmodel('siple_mesh_generation');
+md = loadmodel('models/siple_mesh_generation');
 
 % interpolate onto our mesh vertices
 groundedice = double(InterpFromGridToMesh(...
@@ -120,23 +129,23 @@ if plot_grounding_line
 end
 
 % Save model
-save siple_set_mask md;
+save models/siple_set_mask md;
 
 
 %% Parameterization
-md = loadmodel('siple_set_mask');
+md = loadmodel('models/siple_set_mask');
 md = parameterize(md, 'siple_params.m');
 
 % Use a MacAyeal flow model
 md = setflowequation(md, 'SSA', 'all');
 
 % Save model
-save siple_parameterization md;
+save models/siple_parameterization md;
 
 
 %% Find stress balance (control method)
 
-md = loadmodel('siple_parameterization');
+md = loadmodel('models/siple_parameterization');
 
 % Control general
 md.inversion.iscontrol = 1;
@@ -178,7 +187,7 @@ if plot_friction_coefficient
 end
     
 % Save model
-save siple_control_drag md;
+save models/siple_control_drag md;
 
 
 
