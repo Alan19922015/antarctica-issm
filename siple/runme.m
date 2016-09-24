@@ -99,6 +99,7 @@ md = bamg(md, 'hmax', hmax, 'hmin', hmin, ...
 clear vx_obs vy_obs vel_obs;
 
 if plot_meshes
+    figure
     plotmodel(md, 'data', 'mesh')
     saveas(gcf, 'figures/model_mesh')
     saveas(gcf, 'figures/model_mesh.pdf')
