@@ -15,7 +15,7 @@ xlabel('x [m]')
 ylabel('y [m]')
 
 cb = colorbar();
-ylabel(cb,'log_1_0(v) [m/s]')
+ylabel(cb,'log_1_0(v) [m/yr]')
 
 if ~exist('figures', 'file')
     mkdir figures
