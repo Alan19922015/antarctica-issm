@@ -2,6 +2,7 @@
 plot_data_sets = true;
 plot_meshes = true;
 plot_grounding_line = true;
+plot_friction_coefficient = true;
 
 %% add to path
 addpath('../bin/');    % my scripts
@@ -133,6 +134,51 @@ md = setflowequation(md, 'SSA', 'all');
 save siple_parameterization md;
 
 
+%% Find stress balance (control method)
+
+md = loadmodel('siple_parameterization');
+
+% Control general
+md.inversion.iscontrol = 1;
+md.inversion.maxsteps = 20;
+md.inversion.maxiter = 40;
+md.inversion.dxmin = 0.1;
+md.inversion.gttol = 1.0e-4;
+md.verbose=verbose('solution', true, 'control', true);
+
+% Cost functions
+md.inversion.cost_functions = [101 103 501];
+md.inversion.cost_functions_coefficients = ...
+    ones(md.mesh.numberofvertices, 3);
+md.inversion.cost_functions_coefficients(:,1) = 1;
+md.inversion.cost_functions_coefficients(:,2) = 1;
+md.inversion.cost_functions_coefficients(:,3) = 8e-15;
+
+% Controls
+md.inversion.control_parameters = {'FrictionCoefficient'};
+md.inversion.min_parameters = 1 * ones(md.mesh.numberofvertices, 1);
+md.inversion.max_parameters = 200 * ones(md.mesh.numberofvertices, 1);
+
+% Additional parameters
+md.stressbalance.restol = 0.01;
+md.stressbalance.reltol = 0.1;
+md.stressbalance.abstol = NaN;
+
+% Solve
+md.toolkits = toolkits;
+md.cluster = generic('name', oshostname, 'np', 2);
+md = solve(md, StressbalanceSolutionEnum);
+
+% Update model friction fields accordingly
+md.friction.coefficient = ...
+    md.results.StressbalanceSolution.FrictionCoefficient;
+
+if plot_friction_coefficient
+    plotmodel(md,'data', md.friction.coefficient)
+end
+    
+% Save model
+save siple_control_drag md;
 
 
 
