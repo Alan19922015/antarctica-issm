@@ -3,6 +3,7 @@ plot_data_sets = false;
 plot_meshes = true;
 plot_grounding_line = true;
 plot_friction_coefficient = true;
+stress_balance = 'SSA';  % SSA or HO
 
 %% add to path
 addpath('../bin/');    % my scripts
@@ -58,9 +59,15 @@ end
 %% Mesh generation
 
 % mesh parameters
-hinit = 10000;   % element size for the initial mesh
-hmax = 40000;    % maximum element size of the final mesh
-hmin = 5000;     % minimum element size of the final mesh
+if 0  % coarse mesh
+    hinit = 10000;   % element size for the initial mesh
+    hmax = 40000;    % maximum element size of the final mesh
+    hmin = 5000;     % minimum element size of the final mesh
+else  % fine mesh
+    hinit = 5000;   % element size for the initial mesh
+    hmax = 20000;    % maximum element size of the final mesh
+    hmin = 2500;     % minimum element size of the final mesh
+end
 gradation = 1.7; % maximum size ratio between two neighboring elements
 err = 8;         % maximum error between interpolated and control field
 
@@ -146,9 +153,16 @@ save models/model_set_mask md;
 md = loadmodel('models/model_set_mask');
 md = parameterize(md, 'model_params.m');
 
-% Use a MacAyeal flow model
-md = setflowequation(md, 'SSA', 'all');
+% define stress balance
 
+if strcmp(stress_balance, 'SSA')
+    md = setflowequation(md, 'SSA', 'all');
+elseif strcmp(stress_balance, 'HO')
+    n_layers = 3;
+    md = extrude(md, n_layers, 0.9);
+    md = setflowequation(md, 'HO', 'all');
+end
+    
 % Save model
 save models/model_parameterization md;
 
