@@ -7,53 +7,31 @@ md.miscellaneous.name = 'siple';
 md.mesh.epsg = 3031;
 
 %NetCdf Loading
+disp('   Loading Bedmap2 data from NetCDF');
+bm2 = read_bedmap2();
+
 disp('   Loading SeaRISE data from NetCDF');
 ncdata = '../data/Antarctica_5km_withshelves_v0.75.nc';
-x1    = ncread(ncdata, 'x1');
-y1    = ncread(ncdata, 'y1');
-usrf  = ncread(ncdata, 'usrf')';
-topg  = ncread(ncdata, 'topg')';
-temp  = ncread(ncdata, 'presartm')';
-smb   = ncread(ncdata, 'presprcp')';
-gflux = ncread(ncdata, 'bheatflx_fox')';
+sr.x     = ncread(ncdata, 'x1');
+sr.y     = ncread(ncdata, 'y1');
+sr.usrf  = ncread(ncdata, 'usrf')';
+sr.topg  = ncread(ncdata, 'topg')';
+sr.temp  = ncread(ncdata, 'presartm')';
+sr.smb   = ncread(ncdata, 'presprcp')';
+sr.gflux = ncread(ncdata, 'bheatflx_fox')';
 
-disp('   Loading velocities data from NetCDF');
-nsidc_vel='../data/antarctica_ice_velocity_900m.nc';
+%% x2, y2: velocity data
+disp('   Loading surface velocities');
 
-xmin = ncreadatt(nsidc_vel, '/', 'xmin');
-xmin = strtrim(xmin);  %this is a string, and we need to recover the double value
-xmin = xmin(1:end-2);  %get rid of the unit
-xmin = str2num(xmin);  %convert to double
-
-ymax = ncreadatt(nsidc_vel, '/', 'ymax'); 
-ymax = strtrim(ymax);  
-ymax = ymax(1:end-2);  
-ymax = str2num(ymax); 
-
-nx = ncreadatt(nsidc_vel, '/', 'nx');
-ny = ncreadatt(nsidc_vel, '/', 'ny');
-
-spacing = ncreadatt(nsidc_vel, '/', 'spacing'); 
-spacing = strtrim(spacing);  
-spacing = spacing(1:end-2);  
-spacing = str2num(spacing); 
-
-velx = double(ncread(nsidc_vel, 'vx'));
-vely = double(ncread(nsidc_vel, 'vy'));
-
-x2 = xmin + (0:1:nx)' * spacing; 
-x2 = double(x2);
-
-y2 = (ymax - ny * spacing) + (0:1:ny)' * spacing; 
-y2 = double(y2);
+rignot = read_rignot_velocity();
 
 % Geometry
 disp('   Interpolating surface and ice base');
 md.geometry.base    = InterpFromGridToMesh( ...
-    x1, y1, topg, ...
+    sr.x, sr.y, sr.topg, ...
     md.mesh.x, md.mesh.y, 0);
 md.geometry.surface = InterpFromGridToMesh( ...
-    x1, y1, usrf, ...
+    sr.x, sr.y, sr.usrf, ...
     md.mesh.x, md.mesh.y, 0);
 clear usrf topg;
 
@@ -81,17 +59,17 @@ md.geometry.surface = md.geometry.thickness+md.geometry.base;
 %Initialization parameters
 disp('   Interpolating temperatures');
 md.initialization.temperature = InterpFromGridToMesh( ...
-    x1, y1, ...
-    temp, ...
+    sr.x, sr.y, ...
+    sr.temp, ...
     md.mesh.x, md.mesh.y, 0) + 273.15 + Temp_change;
 clear temp;
 
 disp('   Set observed velocities')
 vx_obs=InterpFromGridToMesh( ...
-    x2, y2, velx, ...
+    rignot.x, rignot.y, rignot.vx, ...
     md.mesh.x, md.mesh.y, 0);
 vy_obs=InterpFromGridToMesh( ...
-    x2, y2, vely, ...
+    rignot.x, rignot.y, rignot.vy, ...
     md.mesh.x, md.mesh.y, 0);
 clear velx vely;
 
@@ -112,7 +90,7 @@ md.materials.rheology_B = paterson(md.initialization.temperature);
 %Forcings
 disp('   Interpolating surface mass balance');
 md.smb.mass_balance = InterpFromGridToMesh( ...
-    x1, y1, smb, ...
+    sr.x, sr.y, sr.smb, ...
     md.mesh.x, md.mesh.y, 0);
 md.smb.mass_balance = ...
     md.smb.mass_balance * md.materials.rho_water / md.materials.rho_ice;
@@ -120,7 +98,7 @@ clear smb;
 
 disp('   Set geothermal heat flux');
 md.basalforcings.geothermalflux = InterpFromGridToMesh( ...
-    x1, y1, gflux, ...
+    sr.x, sr.y, sr.gflux, ...
     md.mesh.x, md.mesh.y, 0);
 clear gflux;
 
