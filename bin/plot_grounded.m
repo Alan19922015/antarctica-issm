@@ -12,4 +12,10 @@ ylabel('y [m]')
 cb = colorbar();
 ylabel(cb,'Flag')
 
+if ~exist('figures', 'file')
+    mkdir figures
+end
+saveas(gcf, 'figures/grounded')
+saveas(gcf, 'figures/grounded.pdf')
+
 end

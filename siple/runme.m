@@ -1,5 +1,5 @@
 %% general script settings
-plot_data_sets = true;
+plot_data_sets = false;
 plot_meshes = true;
 plot_grounding_line = true;
 plot_friction_coefficient = true;
@@ -91,6 +91,8 @@ clear vx_obs vy_obs vel_obs;
 
 if plot_meshes
     plotmodel(md, 'data', 'mesh')
+    saveas(gcf, 'figures/mesh')
+    saveas(gcf, 'figures/mesh.pdf')
 end
 
 % save model
@@ -126,6 +128,8 @@ if plot_grounding_line
     plotmodel(md, ...
         'data', md.mask.groundedice_levelset, 'title', 'grounded/floating', ...
         'data', md.mask.ice_levelset, 'title', 'ice/no-ice');
+    saveas(gcf, 'figures/grounding_line')
+    saveas(gcf, 'figures/grounding_line.pdf')
 end
 
 % Save model
@@ -184,6 +188,8 @@ md.friction.coefficient = ...
 
 if plot_friction_coefficient
     plotmodel(md,'data', md.friction.coefficient)
+    saveas(gcf, 'figures/friction')
+    saveas(gcf, 'figures/friction.pdf')
 end
     
 % Save model

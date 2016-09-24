@@ -17,4 +17,10 @@ ylabel('y [m]')
 cb = colorbar();
 ylabel(cb,'log_1_0(v) [m/s]')
 
+if ~exist('figures', 'file')
+    mkdir figures
+end
+saveas(gcf, 'figures/velocity')
+saveas(gcf, 'figures/velocity.pdf')
+
 end

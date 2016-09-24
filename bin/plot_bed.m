@@ -12,4 +12,10 @@ ylabel('y [m]')
 cb = colorbar();
 ylabel(cb,'z [m]')
 
+if ~exist('figures', 'file')
+    mkdir figures
+end
+saveas(gcf, 'figures/bed')
+saveas(gcf, 'figures/bed.pdf')
+
 end
