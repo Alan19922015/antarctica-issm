@@ -1,6 +1,6 @@
 download=wget
 
-all: le-brocq searise rignot bedmap2 bedmap2-rignot
+all: rignot bedmap2
 
 .PHONY: le-brocq searise rignot bedmap2 bedmap2-rignot
 
