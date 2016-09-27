@@ -14,32 +14,26 @@ disp('   Loading SeaRISE data from NetCDF');
 ncdata = '../data/Antarctica_5km_withshelves_v0.75.nc';
 sr.x     = ncread(ncdata, 'x1');
 sr.y     = ncread(ncdata, 'y1');
-sr.usrf  = ncread(ncdata, 'usrf')';
-sr.topg  = ncread(ncdata, 'topg')';
+%sr.usrf  = ncread(ncdata, 'usrf')';
+%sr.topg  = ncread(ncdata, 'topg')';
 sr.temp  = ncread(ncdata, 'presartm')';
 sr.smb   = ncread(ncdata, 'presprcp')';
 sr.gflux = ncread(ncdata, 'bheatflx_fox')';
 
-%% x2, y2: velocity data
-disp('   Loading surface velocities');
 
+disp('   Loading surface velocities');
 rignot = read_rignot_velocity();
 
 % Geometry
 disp('   Interpolating surface and ice base');
-%md.geometry.base    = InterpFromGridToMesh( ...
-%    sr.x, sr.y, sr.topg, ...
-%    md.mesh.x, md.mesh.y, 0);
-%md.geometry.surface = InterpFromGridToMesh( ...
-%    sr.x, sr.y, sr.usrf, ...
-%    md.mesh.x, md.mesh.y, 0);
+
 md.geometry.base    = InterpFromGridToMesh( ...
     bm2.x', bm2.y', bm2.bed, ...
     md.mesh.x, md.mesh.y, 0);
 md.geometry.surface = InterpFromGridToMesh( ...
     bm2.x', bm2.y', bm2.surface, ...
     md.mesh.x, md.mesh.y, 0);
-clear usrf topg;
+%clear usrf topg;
 
 disp('   Constructing thickness');
 md.geometry.thickness = md.geometry.surface - md.geometry.base;
