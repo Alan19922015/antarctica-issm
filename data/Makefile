@@ -2,7 +2,7 @@ download=wget
 
 all: rignot bedmap2 searise arthern
 
-.PHONY: le-brocq searise rignot bedmap2 bedmap2-rignot arthern
+.PHONY: le-brocq searise rignot rignot-hires bedmap2 bedmap2-rignot arthern
 
 
 searise: Antarctica_5km_withshelves_v0.75.nc
@@ -19,8 +19,13 @@ Antarctica_5km_dev1.0.nc:
 
 rignot: antarctica_ice_velocity_900m.nc
 
+rignot-hires: antarctica_ice_velocity_450m.nc
+
 antarctica_ice_velocity_900m.nc:
 	$(download) ftp://n5eil01u.ecs.nsidc.org/SAN/MEASURES/NSIDC-0484.001/1996.01.01/antarctica_ice_velocity_900m.nc
+
+antarctica_ice_velocity_450m.nc:
+	$(download) ftp://n5eil01u.ecs.nsidc.org/SAN/MEASURES/NSIDC-0484.001/1996.01.01/antarctica_ice_velocity_450m.nc
 
 
 bedmap2: bedmap2_bin.zip
