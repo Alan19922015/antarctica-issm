@@ -1,8 +1,8 @@
 download=wget
 
-all: rignot bedmap2 searise
+all: rignot bedmap2 searise arthern
 
-.PHONY: le-brocq searise rignot bedmap2 bedmap2-rignot
+.PHONY: le-brocq searise rignot bedmap2 bedmap2-rignot arthern
 
 
 searise: Antarctica_5km_withshelves_v0.75.nc
@@ -38,3 +38,10 @@ bin.zip:
 	$(download) https://secure.antarctica.ac.uk/data/bedmap2/resources/Rignot_velocity/bin.zip
 	unzip $@
 	$(download) https://secure.antarctica.ac.uk/data/bedmap2/resources/Rignot_velocity/Rignot_velocity_bedmap2_grid_readme.rtf
+
+arthern: Arthern_accumulation_bin.zip
+
+Arthern_accumulation_bin.zip:
+	$(download) https://secure.antarctica.ac.uk/data/bedmap2/resources/Arthern_accumulation/Arthern_accumulation_bedmap2_grid_readme.rtf
+	$(download) https://secure.antarctica.ac.uk/data/bedmap2/resources/Arthern_accumulation/Arthern_accumulation_bin.zip
+	unzip $@
