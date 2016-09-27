@@ -158,10 +158,12 @@ md = parameterize(md, 'model_params.m');
 
 if strcmp(stress_balance, 'SSA')
     md = setflowequation(md, 'SSA', 'all');
+    
 elseif strcmp(stress_balance, 'HO')
     n_layers = 3;
     md = extrude(md, n_layers, 0.9);
     md = setflowequation(md, 'HO', 'all');
+    clear n_layers;
 end
     
 % Save model
@@ -244,6 +246,7 @@ clear plot_data_sets ...
     plot_meshes ...
     plot_geometry ...
     plot_grounding_line ...
-    plot_friction_coefficient
+    plot_friction_coefficient ...
+    stress_balance
 
 
