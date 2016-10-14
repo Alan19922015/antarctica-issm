@@ -12,13 +12,14 @@ bm2 = read_bedmap2();
 
 disp('   Loading SeaRISE data from NetCDF');
 ncdata = '../data/Antarctica_5km_withshelves_v0.75.nc';
-sr.x     = ncread(ncdata, 'x1');
-sr.y     = ncread(ncdata, 'y1');
+sr.x     = ncread(ncdata, 'x1');  % These coordinates differ from bedmap/rignot
+sr.y     = ncread(ncdata, 'y1');  % These coordinates differ from bedmap/rignot
 %sr.usrf  = ncread(ncdata, 'usrf')';
 %sr.topg  = ncread(ncdata, 'topg')';
 sr.temp  = ncread(ncdata, 'presartm')';
 sr.smb   = ncread(ncdata, 'presprcp')';
-sr.gflux = ncread(ncdata, 'bheatflx_fox')';
+%sr.gflux = ncread(ncdata, 'bheatflx_fox')'; % fox or shapiro
+sr.gflux = ncread(ncdata, 'bheatflx_shapiro')'; % fox or shapiro
 
 
 disp('   Loading surface velocities');
@@ -54,13 +55,13 @@ md.geometry.hydrostatic_ratio = ones(md.mesh.numberofvertices, 1);
 %Set min thickness to 1 meter
 pos0=find(md.geometry.thickness <= 0);
 md.geometry.thickness(pos0) = 1;
-md.geometry.surface = md.geometry.thickness+md.geometry.base;
+md.geometry.surface = md.geometry.thickness + md.geometry.base;
 
 %Initialization parameters
 disp('   Interpolating temperatures');
 md.initialization.temperature = InterpFromGridToMesh( ...
     sr.x, sr.y, ...
-    sr.temp, ...
+    rot90(sr.temp, 3), ...
     md.mesh.x, md.mesh.y, 0) + 273.15 + Temp_change;
 clear temp;
 
@@ -88,9 +89,9 @@ md.materials.rheology_n = 3 * ones(md.mesh.numberofelements, 1);
 md.materials.rheology_B = paterson(md.initialization.temperature);
 
 %Forcings
-disp('   Interpolating surface mass balance');
+disp('   Interpolating surface mass balance'); % is the SeaRISE SMB projection different?
 md.smb.mass_balance = InterpFromGridToMesh( ...
-    sr.x, sr.y, sr.smb, ...
+    sr.x, sr.y, rot90(sr.smb, 3), ...
     md.mesh.x, md.mesh.y, 0);
 md.smb.mass_balance = ...
     md.smb.mass_balance * md.materials.rho_water / md.materials.rho_ice;
@@ -98,7 +99,7 @@ clear smb;
 
 disp('   Set geothermal heat flux');
 md.basalforcings.geothermalflux = InterpFromGridToMesh( ...
-    sr.x, sr.y, sr.gflux, ...
+    sr.x, sr.y, rot90(sr.gflux, 3), ...
     md.mesh.x, md.mesh.y, 0);
 clear gflux;
 

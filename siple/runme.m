@@ -59,7 +59,7 @@ end
 %% Mesh generation
 
 % mesh parameters
-if 0  % coarse mesh
+if 1  % coarse mesh
     hinit = 10000;   % element size for the initial mesh
     hmax = 40000;    % maximum element size of the final mesh
     hmin = 5000;     % minimum element size of the final mesh
@@ -92,14 +92,14 @@ vy_obs = InterpFromGridToMesh( ...
 
 vel_obs = sqrt(vx_obs.^2 + vy_obs.^2);
 
-% adapt the mesh to minimize error in velocity interpolation
+% adapt the mesh to minimize errorrunme in velocity interpolation
 md = bamg(md, 'hmax', hmax, 'hmin', hmin, ...
     'gradation', gradation, 'field', vel_obs, 'err', err);
 
 clear vx_obs vy_obs vel_obs;
 
 if plot_meshes
-    figure
+    %figure
     plotmodel(md, 'data', 'mesh')
     saveas(gcf, 'figures/model_mesh')
     saveas(gcf, 'figures/model_mesh.pdf')
@@ -192,7 +192,10 @@ md.inversion.cost_functions_coefficients(:,3) = 8e-15;
 
 % Controls
 md.inversion.control_parameters = {'FrictionCoefficient'};
-md.inversion.min_parameters = 1 * ones(md.mesh.numberofvertices, 1);
+%md.inversion.min_parameters = 1 * ones(md.mesh.numberofvertices, 1);
+
+% Min/max allowed values of FrictionCoefficient
+md.inversion.min_parameters = 0 * ones(md.mesh.numberofvertices, 1);
 md.inversion.max_parameters = 200 * ones(md.mesh.numberofvertices, 1);
 
 % Additional parameters
@@ -220,11 +223,12 @@ save models/model_control_drag md;
 
 
 %% Post visualization
-plotmodel(md, 'nlines', 2, 'ncols', 2, ...
+plotmodel(md, 'nlines', 4, 'ncols', 2, ...
     'unit#all', 'km', 'axis#all', 'equal', ...
     'xlim#all', [min(md.mesh.x) max(md.mesh.x)] / 10^3, ...
     'ylim#all', [min(md.mesh.y) max(md.mesh.y)] / 10^3, ...
     'FontSize#all', 12, ...
+    'colormap#all', 'parula', ...
     'data', md.initialization.vel, ...
     'title', 'Observed velocity', ...
     'data', md.results.StressbalanceSolution.Vel, ...
@@ -235,7 +239,10 @@ plotmodel(md, 'nlines', 2, 'ncols', 2, ...
     'title', 'Friction Coefficient', ...
     'colorbar#all', 'on', 'colorbartitle#1-2', '[m/yr]', ...
     'caxis#1-2', ([1.5, 4000]), ...
-    'colorbartitle#3', '[m]', 'log#1-2', 10);
+    'colorbartitle#3', '[m]', 'log#1-2', 10, ...
+    'title', 'SMB', 'data', md.smb.mass_balance, ...
+    'title', 'Geothermal heatflux', 'data', md.basalforcings.geothermalflux ...
+    );
 
 saveas(gcf, 'figures/model_combined')
 saveas(gcf, 'figures/model_combined.pdf')
