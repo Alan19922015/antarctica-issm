@@ -1,6 +1,6 @@
 download=wget
 
-all: rignot bedmap2 searise arthern
+all: rignot bedmap2 searise arthern rignot-hires
 
 .PHONY: le-brocq searise rignot rignot-hires bedmap2 bedmap2-rignot arthern
 
