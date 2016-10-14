@@ -128,6 +128,10 @@ md.inversion.vx_obs = vx_obs;
 md.inversion.vy_obs = vy_obs;
 md.inversion.vel_obs = vel_obs;
 
+% exclude areas without data from inversion
+md.inversion.cost_functions_coefficients(...
+    md.inversion.vel_obs < 1, 1:2) = 0;
+
 disp('   Set boundary conditions');
 md = SetMarineIceSheetBC(md);
 md.basalforcings.floatingice_melting_rate = ...

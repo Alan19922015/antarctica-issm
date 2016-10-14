@@ -223,7 +223,7 @@ save models/model_control_drag md;
 
 %% Calculate hydrology
 
-effective_pressure = zeros(length(md.geometry.thickness));
+effective_pressure = zeros(length(md.geometry.thickness), 1);
 
 water_pressure = ...
     md.materials.rho_ice * md.constants.g * md.geometry.thickness - ...
