@@ -59,10 +59,10 @@ end
 %% Mesh generation
 
 % mesh parameters
-if 1  % coarse mesh
-    hinit = 20000;   % element size for the initial mesh
-    hmax = 80000;    % maximum element size of the final mesh
-    hmin = 1000;     % minimum element size of the final mesh
+if 0  % coarse mesh
+    hinit = 10000;   % element size for the initial mesh
+    hmax = 40000;    % maximum element size of the final mesh
+    hmin = 5000;     % minimum element size of the final mesh
 else  % fine mesh
     hinit = 5000;   % element size for the initial mesh
     hmax = 20000;    % maximum element size of the final mesh
