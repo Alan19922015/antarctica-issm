@@ -1,8 +1,8 @@
 function [ rignot ] = read_rignot_velocity()
 % Load Velocities
 % http://nsidc.org/data/nsidc-0484.html
-%rignot.inputfile = '../data/antarctica_ice_velocity_900m.nc';
-rignot.inputfile = '../data/antarctica_ice_velocity_450m.nc';
+rignot.inputfile = '../data/antarctica_ice_velocity_900m.nc';
+%rignot.inputfile = '../data/antarctica_ice_velocity_450m.nc';
 
 % Get necessary data to build up the velocity grid
 rignot.xmin    = ncreadatt(rignot.inputfile, '/', 'xmin');
